@@ -1,3 +1,5 @@
+import random
+
 from kivy.config import Config
 
 Config.set('graphics', 'width', '900')
@@ -30,11 +32,11 @@ class MainWidget(Widget):
     current_y_loop = 0
 
     SPEED_X = 10
-    SPEED = 1
+    SPEED = 100
 
     current_speed_x = 0
 
-    NB_TILES = 4
+    NB_TILES = 16
     tiles = []
     tiles_coordinates = []
 
@@ -75,6 +77,7 @@ class MainWidget(Widget):
 
     def generate_tiles_coordinates(self):
         last_y = 0
+        last_x = 0
 
         for i in range(len(self.tiles_coordinates) -1, -1, -1):
             if self.tiles_coordinates[i][1] < self.current_y_loop:
@@ -83,8 +86,31 @@ class MainWidget(Widget):
         if len(self.tiles_coordinates) > 0:
             last_coordinates = self.tiles_coordinates[-1]
             last_y = last_coordinates[1] + 1
+            last_x = last_coordinates[0]
+
         for i in range(len(self.tiles_coordinates), self.NB_TILES):
-            self.tiles_coordinates.append((0, last_y))
+            r = random.randint(0, 2)
+            self.tiles_coordinates.append((last_x, last_y))
+
+            start_index = -(self.V_NB_LINES // 2) + 1
+            end_index = start_index + self.V_NB_LINES - 1
+            if last_x <= start_index:
+                r = 1
+            if last_x >= end_index:
+                r = 2
+
+            if r == 1:
+                last_x += 1
+                self.tiles_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tiles_coordinates.append((last_x, last_y))
+
+            if r == 2:
+                last_x -= 1
+                self.tiles_coordinates.append((last_x, last_y))
+                last_y += 1
+                self.tiles_coordinates.append((last_x, last_y))
+
             last_y += 1
 
     def init_vertical_lines(self):
